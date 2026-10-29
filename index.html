@@ -216,14 +216,14 @@
             min-height: 22px;
         }
 
-        .link-container a {
+        .link-container a, .topic-content a {
             color: var(--brand-purple-mid);
             font-weight: 600;
             text-decoration: none;
             border-bottom: 1px dotted var(--brand-purple-mid);
         }
 
-        .link-container a:hover {
+        .link-container a:hover, .topic-content a:hover {
             color: var(--brand-red);
             border-bottom-color: var(--brand-red);
         }
@@ -839,7 +839,7 @@
                     </div>
 
                     <div class="add-topic-box">
-                        <input type="text" id="new-topic-input" placeholder="New topic...">
+                        <input type="text" id="new-topic-input" placeholder="New topic or link...">
                         <button class="btn" onclick="addTopic()" style="padding: 8px 14px; background-color: var(--brand-purple-dark);">+</button>
                     </div>
                 </div>
@@ -1435,7 +1435,7 @@
             const topics = [];
             document.querySelectorAll('.topic-item').forEach(item => {
                 topics.push({
-                    text: item.querySelector('span').innerText || '',
+                    text: item.getAttribute('data-raw-text') || item.querySelector('span').innerText || '',
                     completed: item.querySelector('input').checked || false
                 });
             });
@@ -1455,10 +1455,24 @@
                 topics.forEach((t) => {
                     const div = document.createElement('div');
                     div.className = `topic-item ${t.completed ? 'completed' : ''}`;
+                    div.setAttribute('data-raw-text', t.text);
+
+                    // Converte URLs em hiperlinks clicáveis de forma inteligente
+                    let formattedTextHtml = t.text;
+                    const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9][-a-zA-Z0-90-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g;
+                    
+                    formattedTextHtml = t.text.replace(urlRegex, (url) => {
+                        let href = url;
+                        if (!href.startsWith('http://') && !href.startsWith('https://')) {
+                            href = 'https://' + href;
+                        }
+                        return `<a href="${href}" target="_blank">${url}</a>`;
+                    });
+
                     div.innerHTML = `
                         <div class="topic-content">
                             <input type="checkbox" ${t.completed ? 'checked' : ''} onchange="toggleTopic(this)">
-                            <span>${t.text}</span>
+                            <span>${formattedTextHtml}</span>
                         </div>
                         <button class="delete-topic-btn" onclick="deleteTopic(this)" title="Delete topic">×</button>
                     `;
@@ -1481,7 +1495,8 @@
 
         function addTopic() {
             const input = document.getElementById('new-topic-input');
-            if (!input.value.trim()) return;
+            const val = input.value.trim();
+            if (!val) return;
             
             const activeList = document.getElementById('topics-list');
             if (activeList.querySelector('.empty-msg')) {
@@ -1490,10 +1505,23 @@
 
             const div = document.createElement('div');
             div.className = 'topic-item';
+            div.setAttribute('data-raw-text', val);
+
+            let formattedTextHtml = val;
+            const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+|[a-zA-Z0-9][-a-zA-Z0-90-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*))/g;
+            
+            formattedTextHtml = val.replace(urlRegex, (url) => {
+                let href = url;
+                if (!href.startsWith('http://') && !href.startsWith('https://')) {
+                    href = 'https://' + href;
+                }
+                return `<a href="${href}" target="_blank">${url}</a>`;
+            });
+
             div.innerHTML = `
                 <div class="topic-content">
                     <input type="checkbox" onchange="toggleTopic(this)">
-                    <span>${input.value}</span>
+                    <span>${formattedTextHtml}</span>
                 </div>
                 <button class="delete-topic-btn" onclick="deleteTopic(this)" title="Delete topic">×</button>
             `;
@@ -1575,7 +1603,6 @@
                 
                 document.getElementById('sync-status').innerText = "All changes saved";
             } else {
-                // Se o documento é novo no Firebase, inicia TUDO 100% LIMPO
                 clearUI();
                 document.getElementById('sync-status').innerText = "New student log created (Ready)";
             }
