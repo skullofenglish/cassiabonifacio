@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IELTS Academic Grammar Lab | Clássica Gótica</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts: Cinzel (Títulos) e Montserrat (Texto) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div>
+        <span class="badge">IELTS Academic • B2/C1</span>
+        <h1>Past & Perfect Tenses</h1>
+      </div>
+      <div class="student-pill">
+        <span>Student: <strong id="display-student-name">Loading...</strong></span>
+        <span id="sync-status" class="sync-dot" title="Firestore Connected">● Live Sync</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- PAINEL DO PROFESSOR (Adicione ?teacher=true no final da URL para abrir) -->
+    <section id="teacher-dashboard" class="teacher-panel hidden">
+      <div class="teacher-header">
+        <div>
+          <h2>Teacher Live Monitor</h2>
+          <p>Real-time responses synced from Firestore for <strong id="teacher-student-label"></strong></p>
+        </div>
+        <button id="btn-reset-progress" class="btn-danger">Reset Student Progress</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <span class="stat-label">Completed</span>
+          <strong class="stat-value" id="stat-completed">0 / 32</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Overall Accuracy</span>
+          <strong class="stat-value" id="stat-accuracy">0%</strong>
+        </div>
+        <div class="stat-card">
+          <span class="stat-label">Weakest Area</span>
+          <strong class="stat-value" id="stat-weakest">—</strong>
+        </div>
+      </div>
+
+      <div class="tense-breakdown" id="tense-breakdown"></div>
+    </section>
+
+    <!-- PROGRESS BAR -->
+    <section class="progress-section">
+      <div class="progress-info">
+        <span>Overall Progress</span>
+        <span id="progress-text">0 of 32 completed</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+      </div>
+    </section>
+
+    <!-- NAVEGAÇÃO POR MÓDULOS -->
+    <nav class="tabs" id="module-tabs">
+      <button class="tab-btn active" data-module="1">1. Academic Context (MCQ)</button>
+      <button class="tab-btn" data-module="2">2. Sentence Production (Gap-Fill)</button>
+      <button class="tab-btn" data-module="3">3. IELTS Error Spotting</button>
+      <button class="tab-btn" data-module="4">4. Academic Passage (Cloze)</button>
+    </nav>
+
+    <!-- CONTAINER DOS EXERCÍCIOS -->
+    <section id="exercise-container"></section>
+  </main>
+
+  <!-- Firebase SDK Compat -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+  <!-- Configuração e Lógica -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
