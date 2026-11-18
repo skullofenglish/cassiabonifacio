@@ -23,7 +23,7 @@ if (isTeacherMode) {
 }
 
 // ============================================================================
-// EFEITOS SONOROS DINÂMICOS (Web Audio API - Sem arquivos externos)
+// EFEITOS SONOROS DINÂMICOS (Web Audio API)
 // ============================================================================
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -41,16 +41,14 @@ function playSound(type) {
   const now = audioCtx.currentTime;
 
   if (type === 'correct') {
-    // Som harmonioso de sucesso (acerto)
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(587.33, now); // D5
-    osc.frequency.setValueAtTime(880, now + 0.1); // A5
+    osc.frequency.setValueAtTime(587.33, now);
+    osc.frequency.setValueAtTime(880, now + 0.1);
     gain.gain.setValueAtTime(0.15, now);
     gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
     osc.start(now);
     osc.stop(now + 0.4);
   } else if (type === 'wrong') {
-    // Som discreto de erro
     osc.type = 'triangle';
     osc.frequency.setValueAtTime(180, now);
     osc.frequency.setValueAtTime(140, now + 0.15);
@@ -416,7 +414,6 @@ studentDocRef.onSnapshot((doc) => {
 });
 
 async function saveResponse(questionId, userAnswer, isCorrect) {
-  // Toca o som dinâmico dependendo se acertou ou errou
   playSound(isCorrect ? 'correct' : 'wrong');
 
   studentResponses[questionId] = {
@@ -619,5 +616,30 @@ function renderTeacherDashboard() {
 
   Object.entries(tenseStats).forEach(([tense, data]) => {
     const rate = Math.round((data.right / data.total) * 100);
-    if, rate < lowestRate) { // (corrigido abaixo no bloco limpo)
-  ...
+    if (rate < lowestRate) {
+      lowestRate = rate;
+      weakestName = `${tense} (${rate}%)`;
+    }
+    const chip = document.createElement("span");
+    chip.className = "tense-chip";
+    chip.innerHTML = `${tense}: <strong>${data.right}/${data.total} (${rate}%)</strong>`;
+    breakdownEl.appendChild(chip);
+  });
+
+  document.getElementById("stat-weakest").textContent = completed > 0 ? weakestName : "—";
+}
+
+document.getElementById("btn-reset-progress").addEventListener("click", async () => {
+  if (confirm(`Reset all saved answers for "${studentId}"?`)) {
+    await studentDocRef.delete();
+  }
+});
+
+document.querySelectorAll(".tab-btn").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentModule = Number(btn.dataset.module);
+    renderCurrentModule();
+  });
+});
